@@ -315,9 +315,35 @@
     console.log("打包好的資料：", payload);
     alert("資料打包完成！(請按 F12 開啟開發者工具查看 Console)");
     
-    // 下一步：將這個 payload 用 fetch() 送給你的 GAS Web App URL
-    // fetch('你的_GAS_URL', { method: 'POST', body: JSON.stringify(payload) })...
-  }
+    // 6. 將資料送給 GAS 後端
+    // 👉 請將下方引號內的文字，替換成你剛剛複製的 Web App 網址
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw7_T9YdEdhJZtDqUyBuex56-rB8lBVhySmbqJNjDvMfVKVNJFPpdTln7zWg1vwK2uF/exec'; 
+    
+    // 這裡我們把按鈕改成上傳中，防止駕駛不小心連點兩次
+    const submitBtn = document.querySelector('.btn');
+    submitBtn.innerText = '資料上傳中，請稍候...';
+    submitBtn.disabled = true;
+
+    fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(result => {
+      if(result.status === 'success') {
+        alert('抽檢表上傳成功！單號：' + result.recordId);
+        window.location.reload(); // 成功後重整網頁，準備下一筆填寫
+      } else {
+        alert('發生錯誤：' + result.message);
+        submitBtn.innerText = '送出抽檢表';
+        submitBtn.disabled = false;
+      }
+    })
+    .catch(error => {
+      alert('網路連線失敗，請稍後再試。');
+      submitBtn.innerText = '送出抽檢表';
+      submitBtn.disabled = false;
+    });
 
 </script>
 </body>
