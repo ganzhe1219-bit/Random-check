@@ -5,37 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>車輛抽檢系統</title>
   <style>
-    /* 簡易美化樣式 */
     body { font-family: '微軟正黑體', sans-serif; background-color: #f4f7f6; padding: 20px; }
     .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
     h2, h3 { color: #333; text-align: center; }
-    .section { display: none; } /* 預設隱藏所有區塊 */
-    .section.active { display: block; } /* 顯示作用中的區塊 */
+    .section { display: none; } 
+    .section.active { display: block; } 
     
-    /* 按鈕樣式 */
     .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; font-size: 18px; color: white; background: #007bff; border: none; border-radius: 5px; cursor: pointer; text-align: center; }
     .btn:hover { background: #0056b3; }
     .btn-secondary { background: #6c757d; }
     .btn-secondary:hover { background: #5a6268; }
+    .btn:disabled { background: #cccccc; cursor: not-allowed; }
 
-    /* 表單樣式 */
     .form-group { margin-bottom: 15px; }
     label { display: block; margin-bottom: 5px; font-weight: bold; }
     select, input[type="text"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
     
-    /* 檢查項目並排 */
     .check-item { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; margin-bottom: 5px; border-radius: 4px; }
     .check-item select { width: auto; min-width: 120px; }
 
-    /* 拍照區塊 */
     .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
     .photo-item { border: 1px dashed #ccc; padding: 10px; text-align: center; border-radius: 5px; background: #fafafa; }
-    .photo-item input { display: none; } /* 隱藏原生檔案上傳，改用按鈕觸發 */
+    .photo-item input { display: none; } 
     .photo-btn { background: #28a745; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-top: 5px; width: 100%;}
     .photo-status { display: block; margin-top: 5px; font-size: 12px; color: red; }
 
-    /* 簽名板 */
-    #signature-pad { border: 2px solid #ccc; width: 100%; height: 200px; background: #fff; cursor: crosshair; touch-action: none; /* 防止手機滑動干擾簽名 */ }
+    #signature-pad { border: 2px solid #ccc; width: 100%; height: 200px; background: #fff; cursor: crosshair; touch-action: none; }
   </style>
 </head>
 <body>
@@ -55,7 +50,7 @@
     <h2>幹部登入</h2>
     <div class="form-group">
       <label>請輸入管理密碼：</label>
-      <input type="password" id="admin-pwd" placeholder="請輸入 4 碼密碼">
+      <input type="password" id="admin-pwd" placeholder="請輸入密碼 (預設: 5555)">
     </div>
     <button class="btn" onclick="verifyAdmin()">登入</button>
     <button class="btn btn-secondary" onclick="showSection('home-section')">返回首頁</button>
@@ -65,7 +60,6 @@
   <div id="admin-dashboard" class="section">
     <h2>📋 幹部調閱與簽章</h2>
     <p>目前待審核名單：（此區將由後端 GAS 讀取資料後生成）</p>
-    <!-- 未來這裡會動態產生清單 -->
     <button class="btn btn-secondary" onclick="showSection('home-section')">登出返回</button>
   </div>
 
@@ -73,7 +67,6 @@
   <div id="driver-section" class="section">
     <h2>填寫車輛抽檢表</h2>
     
-    <!-- 基礎資訊 -->
     <div class="form-group">
       <label>班別</label>
       <select id="shift">
@@ -92,31 +85,16 @@
 
     <hr>
     <h3>油水檢查項目</h3>
-    <!-- 檢查項目清單 -->
-    <div class="check-item"><label>引擎機油 (上下限刻度)</label>
-      <select id="check_engineOil"><option value="正常">正常</option><option value="異常">異常</option></select>
-    </div>
-    <div class="check-item"><label>方向機油 (上下限刻度)</label>
-      <select id="check_steeringOil"><option value="正常">正常</option><option value="異常">異常</option></select>
-    </div>
-    <div class="check-item"><label>油量 (下限以上)</label>
-      <select id="check_fuel"><option value="正常">正常</option><option value="異常">異常</option></select>
-    </div>
-    <div class="check-item"><label>煞車油 (上下限刻度)</label>
-      <select id="check_brakeOil"><option value="正常">正常</option><option value="異常">異常</option></select>
-    </div>
-    <div class="check-item"><label>水箱水 (上下限刻度)</label>
-      <select id="check_coolant"><option value="正常">正常</option><option value="異常">異常</option></select>
-    </div>
-    <div class="check-item"><label>電瓶水 (上下限刻度)</label>
-      <select id="check_battery"><option value="正常">正常</option><option value="異常">異常</option></select>
-    </div>
+    <div class="check-item"><label>引擎機油</label><select id="check_engineOil"><option value="正常">正常</option><option value="異常">異常</option></select></div>
+    <div class="check-item"><label>方向機油</label><select id="check_steeringOil"><option value="正常">正常</option><option value="異常">異常</option></select></div>
+    <div class="check-item"><label>油量</label><select id="check_fuel"><option value="正常">正常</option><option value="異常">異常</option></select></div>
+    <div class="check-item"><label>煞車油</label><select id="check_brakeOil"><option value="正常">正常</option><option value="異常">異常</option></select></div>
+    <div class="check-item"><label>水箱水</label><select id="check_coolant"><option value="正常">正常</option><option value="異常">異常</option></select></div>
+    <div class="check-item"><label>電瓶水</label><select id="check_battery"><option value="正常">正常</option><option value="異常">異常</option></select></div>
 
     <hr>
     <h3>車況拍照紀錄 (請上傳 9 張)</h3>
-    <div class="photo-grid" id="photoGrid">
-      <!-- 透過 JS 動態生成 9 個拍照按鈕 -->
-    </div>
+    <div class="photo-grid" id="photoGrid"></div>
 
     <hr>
     <h3>駕駛確認簽名</h3>
@@ -124,55 +102,48 @@
     <button type="button" class="btn btn-secondary" onclick="clearSignature()" style="padding: 10px; margin-top:5px;">清除重簽</button>
 
     <br><br>
-    <button class="btn" onclick="submitForm()">送出抽檢表</button>
+    <!-- 加上了 id="submit-btn" 確保狀態切換正常 -->
+    <button id="submit-btn" class="btn" onclick="submitForm()">送出抽檢表</button>
     <button class="btn btn-secondary" onclick="showSection('home-section')">取消返回</button>
   </div>
 
 </div>
 
 <script>
-  // ================= 頁面切換邏輯 =================
   function showSection(sectionId) {
-    // 隱藏所有 section
     document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-    // 顯示指定的 section
     document.getElementById(sectionId).classList.add('active');
     
-    // 如果進入駕駛區，初始化畫布與按鈕
     if (sectionId === 'driver-section') {
       initSignaturePad();
       generatePhotoGrid();
     }
   }
 
-  // ================= 幹部驗證邏輯 =================
   function verifyAdmin() {
     const pwd = document.getElementById('admin-pwd').value;
-    // 簡單防護：設定密碼為 5555 (實務上不建議把機密寫在前端，但內部便利系統可接受)
     if (pwd === '5555') {
       alert('登入成功！');
       showSection('admin-dashboard');
-      document.getElementById('admin-pwd').value = ''; // 清除密碼欄
+      document.getElementById('admin-pwd').value = '';
     } else {
       alert('密碼錯誤！');
     }
   }
 
-  // ================= 拍照壓縮邏輯 =================
-  const photosData = {}; // 暫存 9 張 Base64 照片
+  const photosData = {}; 
 
-  // 動態生成 9 個拍照區塊
   function generatePhotoGrid() {
     const grid = document.getElementById('photoGrid');
-    if (grid.innerHTML !== "") return; // 避免重複生成
+    if (grid.innerHTML !== "") return; 
 
     for (let i = 1; i <= 9; i++) {
       const html = `
         <div class="photo-item">
           <label>照片 ${i}</label>
-          <!-- 刪除 capture="environment"，並更改按鈕文字 -->
-<input type="file" id="file_${i}" accept="image/*" onchange="processImage(event, ${i})">
-<button type="button" class="photo-btn" onclick="document.getElementById('file_${i}').click()">拍照 / 上傳照片</button>
+          <!-- 移除了 capture="environment" 允許從圖庫上傳 -->
+          <input type="file" id="file_${i}" accept="image/*" onchange="processImage(event, ${i})">
+          <button type="button" class="photo-btn" onclick="document.getElementById('file_${i}').click()">拍照 / 上傳</button>
           <span class="photo-status" id="status_${i}">尚未拍攝</span>
         </div>
       `;
@@ -180,7 +151,6 @@
     }
   }
 
-  // 處理照片壓縮
   function processImage(event, index) {
     const file = event.target.files[0];
     if (!file) return;
@@ -191,7 +161,7 @@
       img.onload = function() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const MAX_WIDTH = 800; // 壓縮寬度
+        const MAX_WIDTH = 800; 
         let width = img.width;
         let height = img.height;
         
@@ -204,12 +174,10 @@
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
         
-        // 轉換為 Base64
         photosData[`photo_${index}`] = canvas.toDataURL('image/jpeg', 0.7);
         
-        // 更新狀態為已拍攝
         const statusSpan = document.getElementById(`status_${index}`);
-        statusSpan.innerText = "✅ 已拍攝";
+        statusSpan.innerText = "✅ 已上傳";
         statusSpan.style.color = "green";
       }
       img.src = e.target.result;
@@ -217,19 +185,15 @@
     reader.readAsDataURL(file);
   }
 
-  // ================= 簽名板邏輯 =================
   let canvas, ctx, drawing = false;
 
   function initSignaturePad() {
     canvas = document.getElementById('signature-pad');
     ctx = canvas.getContext('2d');
-    
-    // 處理高解析度螢幕模糊問題
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width;
     canvas.height = rect.height;
 
-    // 滑鼠與觸控事件
     canvas.addEventListener('mousedown', startPos);
     canvas.addEventListener('mouseup', endPos);
     canvas.addEventListener('mousemove', draw);
@@ -238,22 +202,11 @@
     canvas.addEventListener('touchmove', draw, {passive: false});
   }
 
-  function startPos(e) {
-    e.preventDefault(); // 防止手機滾動
-    drawing = true;
-    draw(e);
-  }
-
-  function endPos() {
-    drawing = false;
-    ctx.beginPath(); // 重置路徑，避免連筆
-  }
-
+  function startPos(e) { e.preventDefault(); drawing = true; draw(e); }
+  function endPos() { drawing = false; ctx.beginPath(); }
   function draw(e) {
     if (!drawing) return;
     e.preventDefault();
-    
-    // 取得座標 (支援滑鼠與觸控)
     const rect = canvas.getBoundingClientRect();
     const x = (e.clientX || e.touches[0].clientX) - rect.left;
     const y = (e.clientY || e.touches[0].clientY) - rect.top;
@@ -272,21 +225,12 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  // ================= 送出表單 (打包資料) =================
   function submitForm() {
-    // 1. 檢查基本資料是否填寫
     const driverName = document.getElementById('driverName').value;
     const plateNumber = document.getElementById('plateNumber').value;
-    if (!driverName || !plateNumber) {
-      alert("請填寫姓名與車號！"); return;
-    }
+    if (!driverName || !plateNumber) { alert("請填寫姓名與車號！"); return; }
+    if (Object.keys(photosData).length < 9) { alert("請確認 9 張照片皆已上傳完畢！"); return; }
 
-    // 2. 檢查照片是否拍滿 9 張
-    if (Object.keys(photosData).length < 9) {
-      alert("請確認 9 張照片皆已拍攝完畢！"); return;
-    }
-
-    // 3. 取得所有檢查項目的值
     const inspectionItems = {
       engineOil: document.getElementById('check_engineOil').value,
       steeringOil: document.getElementById('check_steeringOil').value,
@@ -296,14 +240,11 @@
       battery: document.getElementById('check_battery').value
     };
 
-    // 4. 取得簽名 Base64
-    // 簡單判斷：如果畫布完全透明，代表沒簽名 (此為簡易防呆)
     const signatureBase64 = canvas.toDataURL('image/png');
     
-    // 5. 組合 Payload
     const payload = {
       action: 'submitInspection',
-      timestamp: new Date().toLocaleString('zh-TW', {hour12: false}), // YYYY/MM/DD HH:mm:ss 格式
+      timestamp: new Date().toLocaleString('zh-TW', {hour12: false}), 
       driverName: driverName,
       plateNumber: plateNumber,
       shift: document.getElementById('shift').value,
@@ -312,15 +253,12 @@
       signature: signatureBase64
     };
 
-    console.log("打包好的資料：", payload);
-    alert("資料打包完成！(請按 F12 開啟開發者工具查看 Console)");
-    
-    // 6. 將資料送給 GAS 後端
-    // 👉 請將下方引號內的文字，替換成你剛剛複製的 Web App 網址
+    // ==========================================
+    // 👉 請將下方引號內的網址，換成你剛剛複製的 Web App URL
+    // ==========================================
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbw7_T9YdEdhJZtDqUyBuex56-rB8lBVhySmbqJNjDvMfVKVNJFPpdTln7zWg1vwK2uF/exec'; 
-    
-    // 這裡我們把按鈕改成上傳中，防止駕駛不小心連點兩次
-    const submitBtn = document.querySelector('.btn');
+
+    const submitBtn = document.getElementById('submit-btn');
     submitBtn.innerText = '資料上傳中，請稍候...';
     submitBtn.disabled = true;
 
@@ -332,7 +270,7 @@
     .then(result => {
       if(result.status === 'success') {
         alert('抽檢表上傳成功！單號：' + result.recordId);
-        window.location.reload(); // 成功後重整網頁，準備下一筆填寫
+        window.location.reload(); 
       } else {
         alert('發生錯誤：' + result.message);
         submitBtn.innerText = '送出抽檢表';
@@ -340,11 +278,11 @@
       }
     })
     .catch(error => {
-      alert('網路連線失敗，請稍後再試。');
+      alert('網路連線失敗，請檢查網址或網路狀態。');
       submitBtn.innerText = '送出抽檢表';
       submitBtn.disabled = false;
     });
-
+  }
 </script>
 </body>
 </html>
