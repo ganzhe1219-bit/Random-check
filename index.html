@@ -170,8 +170,9 @@
       const html = `
         <div class="photo-item">
           <label>照片 ${i}</label>
-          <input type="file" id="file_${i}" accept="image/*" capture="environment" onchange="processImage(event, ${i})">
-          <button type="button" class="photo-btn" onclick="document.getElementById('file_${i}').click()">開啟相機</button>
+          <!-- 刪除 capture="environment"，並更改按鈕文字 -->
+<input type="file" id="file_${i}" accept="image/*" onchange="processImage(event, ${i})">
+<button type="button" class="photo-btn" onclick="document.getElementById('file_${i}').click()">拍照 / 上傳照片</button>
           <span class="photo-status" id="status_${i}">尚未拍攝</span>
         </div>
       `;
