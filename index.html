@@ -23,7 +23,7 @@
     
     .check-item { display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 10px; margin-bottom: 5px; border-radius: 4px; }
     .check-item select { width: auto; min-width: 120px; }
-
+  
     .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
     .photo-item { border: 1px dashed #ccc; padding: 10px; text-align: center; border-radius: 5px; background: #fafafa; }
     .photo-item input { display: none; } 
@@ -93,7 +93,7 @@
     <div class="check-item"><label>電瓶水</label><select id="check_battery"><option value="正常">正常</option><option value="異常">異常</option></select></div>
 
     <hr>
-    <h3>車況拍照紀錄 (請上傳 9 張)</h3>
+    <h3>車況拍照紀錄 (請上傳 8 張)</h3>
     <div class="photo-grid" id="photoGrid"></div>
 
     <hr>
@@ -137,7 +137,7 @@
     const grid = document.getElementById('photoGrid');
     if (grid.innerHTML !== "") return; 
 
-    for (let i = 1; i <= 9; i++) {
+    for (let i = 1; i <= 8; i++) {
       const html = `
         <div class="photo-item">
           <label>照片 ${i}</label>
@@ -229,7 +229,7 @@
     const driverName = document.getElementById('driverName').value;
     const plateNumber = document.getElementById('plateNumber').value;
     if (!driverName || !plateNumber) { alert("請填寫姓名與車號！"); return; }
-    if (Object.keys(photosData).length < 9) { alert("請確認 9 張照片皆已上傳完畢！"); return; }
+    if (Object.keys(photosData).length < 8) { alert("請確認 8 張照片皆已上傳完畢！"); return; }
 
     const inspectionItems = {
       engineOil: document.getElementById('check_engineOil').value,
