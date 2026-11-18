@@ -6,7 +6,7 @@
   <title>車輛抽檢系統</title>
   <style>
     body { font-family: '微軟正黑體', sans-serif; background-color: #f4f7f6; padding: 15px; font-size: 18px; }
-    .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative;}
     h2 { color: #333; text-align: center; font-size: 26px; margin-bottom: 20px;}
     h3 { color: #333; text-align: center; font-size: 22px; margin-top: 30px;}
     .section { display: none; } 
@@ -22,14 +22,22 @@
     label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 18px; color: #444; }
     select, input[type="text"], input[type="password"] { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; }
     
+    /* 幹部專用大數字鍵盤 */
+    .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .num-btn { padding: 20px; font-size: 24px; font-weight: bold; background: #e9ecef; border: 2px solid #ced4da; border-radius: 8px; cursor: pointer; color: #333;}
+    .num-btn:active { background: #d3d9df; }
+    .num-btn-del { background: #ffc107; border-color: #ffc107; color: #000; }
+    #pwd-display { text-align: center; font-size: 32px; letter-spacing: 10px; margin: 20px 0; min-height: 40px; border-bottom: 2px dashed #ccc; padding-bottom: 10px;}
+
+    /* 油水檢查按鈕 */
     .check-item { background: #f9f9f9; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e0e0e0; }
     .check-item label { margin-bottom: 12px; font-size: 20px; color: #222; }
     .btn-group { display: flex; gap: 10px; width: 100%; }
     .status-btn { flex: 1; padding: 15px 5px; font-size: 18px; font-weight: bold; border: 2px solid #ccc; border-radius: 6px; background: #fff; color: #555; cursor: pointer; transition: 0.2s; }
-    
     .status-btn.active-green { background: #28a745; color: white; border-color: #28a745; }
     .status-btn.active-red { background: #dc3545; color: white; border-color: #dc3545; }
 
+    /* 拍照區塊 */
     .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
     .photo-item { border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px; background: #fafafa; }
     .photo-item label { font-size: 18px; }
@@ -38,9 +46,26 @@
     .photo-status { display: block; margin-top: 8px; font-size: 14px; color: red; font-weight:bold; }
 
     canvas { border: 2px solid #ccc; width: 100%; height: 250px; background: #fff; cursor: crosshair; touch-action: none; border-radius: 8px; }
+
+    /* 大型成功提示彈窗 */
+    #successModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 40px; border-radius: 12px; text-align: center; width: 85%; max-width: 400px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .modal-content h1 { color: #28a745; font-size: 36px; margin: 0 0 15px 0; }
+    .modal-content p { font-size: 22px; color: #333; margin-bottom: 30px; line-height: 1.5; }
+    .modal-btn { background: #28a745; color: white; border: none; padding: 18px; width: 100%; font-size: 24px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    .modal-btn:hover { background: #218838; }
   </style>
 </head>
 <body>
+
+<!-- 大型成功提示彈窗 -->
+<div id="successModal">
+  <div class="modal-content">
+    <h1>✅ 成功！</h1>
+    <p id="modalMessage">資料已成功上傳</p>
+    <button class="modal-btn" onclick="closeModalAndReload()">關閉並返回</button>
+  </div>
+</div>
 
 <div class="container">
   <!-- 首頁入口 -->
@@ -54,15 +79,31 @@
   <!-- 幹部登入區 -->
   <div id="login-section" class="section">
     <h2>幹部登入</h2>
-    <div class="form-group">
-      <label>請輸入管理密碼：</label>
-      <input type="password" id="admin-pwd" placeholder="請輸入密碼">
+    <p style="text-align:center; font-size: 18px; color: #555;">請輸入管理密碼</p>
+    
+    <div id="pwd-display"></div>
+    <input type="hidden" id="admin-pwd" value="">
+
+    <!-- 大型數字鍵盤 -->
+    <div class="numpad">
+      <button class="num-btn" onclick="inputPwd('1')">1</button>
+      <button class="num-btn" onclick="inputPwd('2')">2</button>
+      <button class="num-btn" onclick="inputPwd('3')">3</button>
+      <button class="num-btn" onclick="inputPwd('4')">4</button>
+      <button class="num-btn" onclick="inputPwd('5')">5</button>
+      <button class="num-btn" onclick="inputPwd('6')">6</button>
+      <button class="num-btn" onclick="inputPwd('7')">7</button>
+      <button class="num-btn" onclick="inputPwd('8')">8</button>
+      <button class="num-btn" onclick="inputPwd('9')">9</button>
+      <button class="num-btn num-btn-del" onclick="delPwd()">清除</button>
+      <button class="num-btn" onclick="inputPwd('0')">0</button>
+      <button class="num-btn" style="background:#007bff; color:white;" onclick="verifyAdmin()">登入</button>
     </div>
-    <button class="btn" onclick="verifyAdmin()">登入</button>
-    <button class="btn btn-secondary" onclick="showSection('home-section')">返回首頁</button>
+
+    <button class="btn btn-secondary" onclick="showSection('home-section')" style="margin-top:30px;">取消返回</button>
   </div>
 
-  <!-- 幹部後台區 (新增審核清單與畫布) -->
+  <!-- 幹部後台區 -->
   <div id="admin-dashboard" class="section">
     <h2>📋 幹部審核與簽章</h2>
     
@@ -84,9 +125,9 @@
     <button class="btn btn-secondary" onclick="showSection('home-section')">登出返回</button>
   </div>
 
-  <!-- 駕駛填表區 (隱藏) -->
+  <!-- 駕駛填表區 -->
   <div id="driver-section" class="section">
-    <h2>📝 填寫車輛抽檢表</h2>
+    <h2>車輛抽檢表</h2>
     
     <div class="form-group">
       <label>班別</label>
@@ -110,7 +151,7 @@
     </div>
 
     <hr>
-    <h3>檢查項目</h3>
+    <h3>📝檢查項目</h3>
     <div class="check-item"><label>引擎機油</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('engineOil', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('engineOil', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('engineOil', '不足', this)">不足</button></div><input type="hidden" id="check_engineOil" value=""></div>
     <div class="check-item"><label>方向機油</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('steeringOil', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('steeringOil', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('steeringOil', '不足', this)">不足</button></div><input type="hidden" id="check_steeringOil" value=""></div>
     <div class="check-item"><label>油量</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('fuel', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('fuel', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('fuel', '不足', this)">不足</button></div><input type="hidden" id="check_fuel" value=""></div>
@@ -149,17 +190,45 @@
     }
   }
 
-  // --- 幹部相關邏輯 ---
+  // --- 大型彈窗邏輯 ---
+  function showSuccessModal(message) {
+    document.getElementById('modalMessage').innerText = message;
+    document.getElementById('successModal').style.display = 'flex';
+  }
+  function closeModalAndReload() {
+    window.location.reload();
+  }
+
+  // --- 幹部登入專用鍵盤邏輯 ---
+  function inputPwd(num) {
+    const pwdInput = document.getElementById('admin-pwd');
+    if(pwdInput.value.length < 8) { // 限制長度
+      pwdInput.value += num;
+      updatePwdDisplay();
+    }
+  }
+  function delPwd() {
+    const pwdInput = document.getElementById('admin-pwd');
+    pwdInput.value = pwdInput.value.slice(0, -1);
+    updatePwdDisplay();
+  }
+  function updatePwdDisplay() {
+    const pwd = document.getElementById('admin-pwd').value;
+    document.getElementById('pwd-display').innerText = '*'.repeat(pwd.length);
+  }
+
   function verifyAdmin() {
     const pwd = document.getElementById('admin-pwd').value;
     if (pwd === '5555') {
-      alert('登入成功！');
       showSection('admin-dashboard');
       document.getElementById('admin-pwd').value = '';
+      updatePwdDisplay();
       initAdminSignaturePad();
-      loadPendingList(); // 登入後自動讀取待審核清單
+      loadPendingList(); 
     } else {
       alert('密碼錯誤！');
+      document.getElementById('admin-pwd').value = '';
+      updatePwdDisplay();
     }
   }
 
@@ -213,11 +282,7 @@
     .then(res => res.json())
     .then(result => {
       if (result.status === 'success') {
-        alert('核定簽章已成功儲存！狀態已改為「已完成」。');
-        clearAdminSignature();
-        loadPendingList(); // 重新整理清單
-        btn.innerText = '✅ 送出核定簽章';
-        btn.disabled = false;
+        showSuccessModal('幹部核定簽章已儲存！');
       } else {
         alert('錯誤：' + result.message);
         btn.innerText = '✅ 送出核定簽章';
@@ -231,7 +296,7 @@
     });
   }
 
-  // --- 幹部簽名板繪圖邏輯 ---
+  // --- 幹部簽名板 ---
   let adminCanvas, adminCtx, adminDrawing = false;
   function initAdminSignaturePad() {
     adminCanvas = document.getElementById('admin-signature-pad');
@@ -265,7 +330,7 @@
   }
   function clearAdminSignature() { adminCtx.clearRect(0, 0, adminCanvas.width, adminCanvas.height); }
 
-  // --- 駕駛填表相關邏輯 (與先前相同) ---
+  // --- 駕駛填表邏輯 ---
   function selectStatus(itemId, value, btnElement) {
     document.getElementById('check_' + itemId).value = value;
     const group = btnElement.parentElement;
@@ -358,7 +423,7 @@
     const inspectionItems = {};
     for (let key of itemKeys) {
       const val = document.getElementById('check_' + key).value;
-      if (!val) { alert("請完成所有油水檢查項目的點選！"); return; }
+      if (!val) { alert("請完成所有檢查項目的點選！"); return; }
       inspectionItems[key] = val;
     }
 
@@ -387,8 +452,7 @@
     .then(res => res.json())
     .then(result => {
       if(result.status === 'success') {
-        alert('抽檢表上傳成功！單號：' + result.recordId);
-        window.location.reload(); 
+        showSuccessModal(`抽檢表上傳成功！\n單號：${result.recordId}`);
       } else {
         alert('發生錯誤：' + result.message);
         submitBtn.innerText = '🚀 送出抽檢表';
