@@ -24,17 +24,7 @@
     
     /* 幹部專用大數字鍵盤 */
     .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .num-btn { 
-      padding: 20px; 
-      font-size: 24px; 
-      font-weight: bold; 
-      background: #e9ecef; 
-      border: 2px solid #ced4da; 
-      border-radius: 8px; 
-      cursor: pointer; 
-      color: #333;
-      touch-action: manipulation; 
-    }
+    .num-btn { padding: 20px; font-size: 24px; font-weight: bold; background: #e9ecef; border: 2px solid #ced4da; border-radius: 8px; cursor: pointer; color: #333; touch-action: manipulation; }
     .num-btn:active { background: #d3d9df; }
     .num-btn-del { background: #ffc107; border-color: #ffc107; color: #000; }
     #pwd-display { text-align: center; font-size: 32px; letter-spacing: 10px; margin: 20px 0; min-height: 40px; border-bottom: 2px dashed #ccc; padding-bottom: 10px;}
@@ -77,7 +67,6 @@
 </head>
 <body>
 
-<!-- 大型成功提示彈窗 -->
 <div id="successModal">
   <div class="modal-content">
     <h1>✅ 成功！</h1>
@@ -128,13 +117,12 @@
     
     <div class="form-group">
       <label>待審核清單：</label>
-      <!-- 👉 加上了 onchange 事件，選擇後會顯示檢查結果 -->
       <select id="pendingList" onchange="showInspectionInfo()">
         <option value="">讀取中，請稍候...</option>
       </select>
     </div>
 
-    <!-- 👉 新增：隊員填寫的六項檢查結果顯示區塊 -->
+    <!-- 隊員檢查結果顯示區塊 -->
     <div id="inspection-info">
       <h4>🔍 隊員檢查結果</h4>
       <div class="info-grid">
@@ -150,18 +138,17 @@
     <button class="btn btn-secondary" onclick="loadPendingList()" style="padding:12px; margin-bottom: 25px;">🔄 重新整理清單</button>
 
     <hr>
-    <h3>✍️ 幹部核定簽名</h3>
-    <canvas id="admin-signature-pad"></canvas>
-    <button type="button" class="btn btn-secondary" onclick="clearAdminSignature()" style="padding: 12px; margin-top:10px;">清除重簽</button>
-    
-    <br><br>
-    <button id="admin-submit-btn" class="btn" onclick="submitAdminSign()">✅ 送出核定簽章</button>
+    <!-- 👉 移除了畫布，改為一鍵自動產生電子印章按鈕 -->
+    <h3>✅ 幹部電子核章</h3>
+    <p style="text-align:center; color:#555; font-size:16px;">點擊下方按鈕將自動產生【主管核章＋時間】電子印章</p>
+    <br>
+    <button id="admin-submit-btn" class="btn" style="background-color: #28a745;" onclick="submitAdminSign()">✅ 一鍵核准 (自動蓋章)</button>
     <button class="btn btn-secondary" onclick="showSection('home-section')">登出返回</button>
   </div>
 
   <!-- 駕駛填表區 -->
   <div id="driver-section" class="section">
-    <h2>車輛抽檢表</h2>
+    <h2>📝 填寫車輛抽檢表</h2>
     
     <div class="form-group">
       <label>班別</label>
@@ -175,6 +162,7 @@
         <option value="廚餘班">廚餘班</option>
       </select>
     </div>
+    <!-- 引入了下拉選單車號 -->
     <div class="form-group">
       <label>車號</label>
       <select id="plateNumber">
@@ -242,7 +230,7 @@
         <option value="KEU-5573">KEU-5573</option>
         <option value="KEU-6101">KEU-6101</option>
         <option value="620-UY">620-UY</option>
-        <option value="KEJ-6282">6282</option>
+        <option value="KEJ-6282">KEJ-6282</option>
         <option value="6390-VL">6390-VL</option>
         <option value="649-SL">649-SL</option>
         <option value="650-SL">650-SL</option>
@@ -275,7 +263,7 @@
 
     <hr>
     <h3>📝 檢查項目</h3>
-    <!-- 👇 新增這行警示語，設定為紅色置中、加粗 -->
+    <!-- 事前警語 -->
     <p style="text-align: center; color: #dc3545; font-weight: bold; font-size: 18px; margin-top: -10px; margin-bottom: 20px;">⚠️ 如發現異常請聯繫車管人員</p>
     
     <div class="check-item"><label>引擎機油</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('engineOil', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('engineOil', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('engineOil', '不足', this)">不足</button></div><input type="hidden" id="check_engineOil" value=""></div>
@@ -284,12 +272,14 @@
     <div class="check-item"><label>煞車油</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('brakeOil', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('brakeOil', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('brakeOil', '不足', this)">不足</button></div><input type="hidden" id="check_brakeOil" value=""></div>
     <div class="check-item"><label>水箱水</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('coolant', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('coolant', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('coolant', '不足', this)">不足</button></div><input type="hidden" id="check_coolant" value=""></div>
     <div class="check-item"><label>電瓶水</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('battery', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('battery', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('battery', '不足', this)">不足</button></div><input type="hidden" id="check_battery" value=""></div>
+
     <hr>
-    <h3>📸 檢查過程拍照紀錄 (請上傳 8 張)</h3>
+    <h3>📸 車況拍照紀錄 (請上傳 8 張)</h3>
     <div class="photo-grid" id="photoGrid"></div>
 
     <hr>
     <h3>✍️ 駕駛確認簽名</h3>
+    <!-- 駕駛依然需要手動簽名 -->
     <canvas id="signature-pad"></canvas>
     <button type="button" class="btn btn-secondary" onclick="clearSignature()" style="padding: 12px; margin-top:10px;">清除重簽</button>
 
@@ -305,7 +295,6 @@
   // ==========================================
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbw7_T9YdEdhJZtDqUyBuex56-rB8lBVhySmbqJNjDvMfVKVNJFPpdTln7zWg1vwK2uF/exec'; 
 
-  // 👉 用來暫存從資料庫抓回來的待審核資料
   let currentPendingData = [];
 
   function showSection(sectionId) {
@@ -318,7 +307,6 @@
     }
   }
 
-  // --- 大型彈窗邏輯 ---
   function showSuccessModal(message) {
     document.getElementById('modalMessage').innerText = message;
     document.getElementById('successModal').style.display = 'flex';
@@ -327,7 +315,6 @@
     window.location.reload();
   }
 
-  // --- 幹部登入專用鍵盤邏輯 ---
   function inputPwd(num) {
     const pwdInput = document.getElementById('admin-pwd');
     if(pwdInput.value.length < 8) { 
@@ -351,7 +338,7 @@
       showSection('admin-dashboard');
       document.getElementById('admin-pwd').value = '';
       updatePwdDisplay();
-      initAdminSignaturePad();
+      // 👉 移除了畫布初始化
       loadPendingList(); 
     } else {
       alert('密碼錯誤！');
@@ -360,11 +347,10 @@
     }
   }
 
-  // 向 GAS 請求待審核清單，並儲存到 currentPendingData
   function loadPendingList() {
     const select = document.getElementById('pendingList');
     const infoBox = document.getElementById('inspection-info');
-    infoBox.style.display = 'none'; // 重新整理時先隱藏結果區塊
+    infoBox.style.display = 'none'; 
     select.innerHTML = '<option value="">讀取中，請稍候...</option>';
     
     fetch(GAS_URL, {
@@ -374,7 +360,7 @@
     .then(res => res.json())
     .then(result => {
       if (result.status === 'success') {
-        currentPendingData = result.data; // 👉 儲存資料以便後續顯示
+        currentPendingData = result.data; 
         if (result.data.length === 0) {
           select.innerHTML = '<option value="" disabled selected>目前沒有待審核的紀錄 🎉</option>';
         } else {
@@ -390,7 +376,6 @@
     });
   }
 
-  // 👉 新增：當幹部選擇下拉選單時，自動顯示該車輛的檢查結果
   function showInspectionInfo() {
     const selectedId = document.getElementById('pendingList').value;
     const infoBox = document.getElementById('inspection-info');
@@ -408,20 +393,49 @@
         const el = document.getElementById('info-' + f);
         const val = record.items[f] || '無資料';
         el.innerText = val;
-        // 如果是標準顯示綠色，其他則顯示紅色
         el.style.color = (val === '標準') ? '#28a745' : '#dc3545';
       });
 
-      infoBox.style.display = 'block'; // 顯示資訊區塊
+      infoBox.style.display = 'block'; 
     }
   }
 
-  // 幹部送出簽名
+  // 👉 新增：自動產生電子印章取代手寫簽名的邏輯
   function submitAdminSign() {
     const recordId = document.getElementById('pendingList').value;
     if (!recordId) { alert('請先從下拉選單選擇一筆要審核的紀錄！'); return; }
     
-    const signatureBase64 = adminCanvas.toDataURL('image/png');
+    // 1. 動態建立一個隱藏的虛擬畫布
+    const stampCanvas = document.createElement('canvas');
+    stampCanvas.width = 400;
+    stampCanvas.height = 200;
+    const ctx = stampCanvas.getContext('2d');
+
+    // 2. 畫出白色背景
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, stampCanvas.width, stampCanvas.height);
+
+    // 3. 畫出紅色印章邊框
+    ctx.strokeStyle = "#cc0000";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(10, 10, stampCanvas.width - 20, stampCanvas.height - 20);
+
+    // 4. 寫入「主管核章」大字
+    ctx.fillStyle = "#cc0000";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 48px '微軟正黑體', sans-serif";
+    ctx.fillText("韓宗翰", stampCanvas.width / 2, 70);
+
+    // 5. 寫入現在的精準時間 (防偽戳記)
+    ctx.font = "24px '微軟正黑體', sans-serif";
+    const now = new Date();
+    const timeStr = now.toLocaleString('zh-TW', { hour12: false });
+    ctx.fillText(timeStr, stampCanvas.width / 2, 140);
+
+    // 6. 把畫布轉成 Base64 圖片 (跟手寫簽名一樣的格式)
+    const signatureBase64 = stampCanvas.toDataURL('image/png');
+
     const payload = {
       action: 'updateCadreSign',
       recordId: recordId,
@@ -429,7 +443,7 @@
     };
 
     const btn = document.getElementById('admin-submit-btn');
-    btn.innerText = '簽章上傳中，請稍候...';
+    btn.innerText = '蓋章上傳中，請稍候...';
     btn.disabled = true;
 
     fetch(GAS_URL, {
@@ -439,54 +453,21 @@
     .then(res => res.json())
     .then(result => {
       if (result.status === 'success') {
-        showSuccessModal('幹部核定簽章已儲存！');
+        showSuccessModal('主管電子核章已成功蓋上！');
       } else {
         alert('錯誤：' + result.message);
-        btn.innerText = '✅ 送出核定簽章';
+        btn.innerText = '✅ 一鍵核准 (自動蓋章)';
         btn.disabled = false;
       }
     })
     .catch(e => {
       alert('連線失敗');
-      btn.innerText = '✅ 送出核定簽章';
+      btn.innerText = '✅ 一鍵核准 (自動蓋章)';
       btn.disabled = false;
     });
   }
 
-  // --- 幹部簽名板 ---
-  let adminCanvas, adminCtx, adminDrawing = false;
-  function initAdminSignaturePad() {
-    adminCanvas = document.getElementById('admin-signature-pad');
-    adminCtx = adminCanvas.getContext('2d');
-    const rect = adminCanvas.getBoundingClientRect();
-    adminCanvas.width = rect.width;
-    adminCanvas.height = rect.height;
-    adminCanvas.addEventListener('mousedown', aStartPos);
-    adminCanvas.addEventListener('mouseup', aEndPos);
-    adminCanvas.addEventListener('mousemove', aDraw);
-    adminCanvas.addEventListener('touchstart', aStartPos, {passive: false});
-    adminCanvas.addEventListener('touchend', aEndPos);
-    adminCanvas.addEventListener('touchmove', aDraw, {passive: false});
-  }
-  function aStartPos(e) { e.preventDefault(); adminDrawing = true; aDraw(e); }
-  function aEndPos() { adminDrawing = false; adminCtx.beginPath(); }
-  function aDraw(e) {
-    if (!adminDrawing) return;
-    e.preventDefault();
-    const rect = adminCanvas.getBoundingClientRect();
-    const x = (e.clientX || e.touches[0].clientX) - rect.left;
-    const y = (e.clientY || e.touches[0].clientY) - rect.top;
-    adminCtx.lineWidth = 4;
-    adminCtx.lineCap = 'round';
-    adminCtx.strokeStyle = '#000';
-    adminCtx.lineTo(x, y);
-    adminCtx.stroke();
-    adminCtx.beginPath();
-    adminCtx.moveTo(x, y);
-  }
-  function clearAdminSignature() { adminCtx.clearRect(0, 0, adminCanvas.width, adminCanvas.height); }
-
-  // --- 駕駛填表邏輯 ---
+  // --- 以下為駕駛填表相關邏輯 ---
   function selectStatus(itemId, value, btnElement) {
     document.getElementById('check_' + itemId).value = value;
     const group = btnElement.parentElement;
@@ -497,7 +478,6 @@
 
   const photosData = {}; 
 
-  // 產生雙按鈕 (拍照/上傳) 的格子
   function generatePhotoGrid() {
     const grid = document.getElementById('photoGrid');
     if (grid.innerHTML !== "") return; 
@@ -632,8 +612,7 @@
     .then(res => res.json())
     .then(result => {
       if(result.status === 'success') {
-        // 👉 新增：在隊員成功畫面上加入異常聯繫提示
-        showSuccessModal(`抽檢表上傳成功！\n車號：${plateNumber}\n\n⚠️ 如發現異常請聯繫車管人員`);
+        showSuccessModal(`抽檢表上傳成功！\n車號：${plateNumber}`);
       } else {
         alert('發生錯誤：' + result.message);
         submitBtn.innerText = '🚀 送出抽檢表';
