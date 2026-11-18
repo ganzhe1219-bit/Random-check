@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>車輛抽檢系統</title>
   <style>
     body { font-family: '微軟正黑體', sans-serif; background-color: #f4f7f6; padding: 15px; font-size: 18px; }
@@ -22,9 +22,19 @@
     label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 18px; color: #444; }
     select, input[type="text"], input[type="password"] { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; }
     
-    /* 幹部專用大數字鍵盤 */
+   /* 幹部專用大數字鍵盤 */
     .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .num-btn { padding: 20px; font-size: 24px; font-weight: bold; background: #e9ecef; border: 2px solid #ced4da; border-radius: 8px; cursor: pointer; color: #333;}
+    .num-btn { 
+      padding: 20px; 
+      font-size: 24px; 
+      font-weight: bold; 
+      background: #e9ecef; 
+      border: 2px solid #ced4da; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      color: #333;
+      touch-action: manipulation; /* 👈 新增這行：防止手機雙擊放大 */
+    }
     .num-btn:active { background: #d3d9df; }
     .num-btn-del { background: #ffc107; border-color: #ffc107; color: #000; }
     #pwd-display { text-align: center; font-size: 32px; letter-spacing: 10px; margin: 20px 0; min-height: 40px; border-bottom: 2px dashed #ccc; padding-bottom: 10px;}
