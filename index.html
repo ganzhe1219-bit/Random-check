@@ -2,6 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
+  <!-- 鎖定畫面比例，防止幹部連點密碼時放大 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>車輛抽檢系統</title>
   <style>
@@ -22,7 +23,7 @@
     label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 18px; color: #444; }
     select, input[type="text"], input[type="password"] { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; }
     
-   /* 幹部專用大數字鍵盤 */
+    /* 幹部專用大數字鍵盤 */
     .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
     .num-btn { 
       padding: 20px; 
@@ -33,7 +34,7 @@
       border-radius: 8px; 
       cursor: pointer; 
       color: #333;
-      touch-action: manipulation; /* 👈 新增這行：防止手機雙擊放大 */
+      touch-action: manipulation; /* 徹底消除手機連點放大 */
     }
     .num-btn:active { background: #d3d9df; }
     .num-btn-del { background: #ffc107; border-color: #ffc107; color: #000; }
@@ -47,12 +48,14 @@
     .status-btn.active-green { background: #28a745; color: white; border-color: #28a745; }
     .status-btn.active-red { background: #dc3545; color: white; border-color: #dc3545; }
 
-    /* 拍照區塊 */
+    /* 拍照區塊 (改為雙按鈕並排) */
     .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
     .photo-item { border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px; background: #fafafa; }
     .photo-item label { font-size: 18px; }
     .photo-item input { display: none; } 
-    .photo-btn { background: #28a745; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight:bold; margin-top: 10px; width: 100%;}
+    .photo-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .photo-btn-cam { background: #28a745; color: white; padding: 10px 5px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight:bold; flex: 1; }
+    .photo-btn-up { background: #17a2b8; color: white; padding: 10px 5px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight:bold; flex: 1; }
     .photo-status { display: block; margin-top: 8px; font-size: 14px; color: red; font-weight:bold; }
 
     canvas { border: 2px solid #ccc; width: 100%; height: 250px; background: #fff; cursor: crosshair; touch-action: none; border-radius: 8px; }
@@ -212,7 +215,7 @@
   // --- 幹部登入專用鍵盤邏輯 ---
   function inputPwd(num) {
     const pwdInput = document.getElementById('admin-pwd');
-    if(pwdInput.value.length < 8) { // 限制長度
+    if(pwdInput.value.length < 8) { 
       pwdInput.value += num;
       updatePwdDisplay();
     }
@@ -242,7 +245,7 @@
     }
   }
 
-  // 向 GAS 請求待審核清單
+  // 向 GAS 請求待審核清單 (格式：時間 | 車號 | 姓名，完全不顯示單號)
   function loadPendingList() {
     const select = document.getElementById('pendingList');
     select.innerHTML = '<option value="">讀取中，請稍候...</option>';
@@ -255,11 +258,11 @@
     .then(result => {
       if (result.status === 'success') {
         if (result.data.length === 0) {
-          select.innerHTML = '<option value="" disabled selected>目前沒有待審核的單號 🎉</option>';
+          select.innerHTML = '<option value="" disabled selected>目前沒有待審核的紀錄 🎉</option>';
         } else {
-          select.innerHTML = '<option value="" disabled selected>請選擇要審核的單號...</option>';
+          select.innerHTML = '<option value="" disabled selected>請選擇要審核的車輛...</option>';
           result.data.forEach(item => {
-            select.innerHTML += `<option value="${item.recordId}">車號 ${item.plate} (${item.time})</option>`;
+            select.innerHTML += `<option value="${item.recordId}">${item.time} ｜ 車號: ${item.plate} ｜ ${item.inspector}</option>`;
           });
         }
       }
@@ -272,7 +275,7 @@
   // 幹部送出簽名
   function submitAdminSign() {
     const recordId = document.getElementById('pendingList').value;
-    if (!recordId) { alert('請先從下拉選單選擇一筆要審核的單號！'); return; }
+    if (!recordId) { alert('請先從下拉選單選擇一筆要審核的紀錄！'); return; }
     
     const signatureBase64 = adminCanvas.toDataURL('image/png');
     const payload = {
@@ -314,7 +317,6 @@
     const rect = adminCanvas.getBoundingClientRect();
     adminCanvas.width = rect.width;
     adminCanvas.height = rect.height;
-
     adminCanvas.addEventListener('mousedown', aStartPos);
     adminCanvas.addEventListener('mouseup', aEndPos);
     adminCanvas.addEventListener('mousemove', aDraw);
@@ -350,6 +352,8 @@
   }
 
   const photosData = {}; 
+
+  // 產生雙按鈕 (拍照/上傳) 的格子
   function generatePhotoGrid() {
     const grid = document.getElementById('photoGrid');
     if (grid.innerHTML !== "") return; 
@@ -357,15 +361,23 @@
       const html = `
         <div class="photo-item">
           <label>照片 ${i}</label>
-          <input type="file" id="file_${i}" accept="image/*" onchange="processImage(event, ${i})">
-          <button type="button" class="photo-btn" onclick="document.getElementById('file_${i}').click()">📸 拍照 / 上傳</button>
-          <span class="photo-status" id="status_${i}">尚未拍攝</span>
+          <!-- 隱藏的兩個 input -->
+          <input type="file" id="file_cam_${i}" accept="image/*" capture="environment" onchange="processImage(event, ${i}, true)">
+          <input type="file" id="file_up_${i}" accept="image/*" onchange="processImage(event, ${i}, false)">
+          
+          <!-- 雙按鈕介面 -->
+          <div class="photo-actions">
+            <button type="button" class="photo-btn-cam" onclick="document.getElementById('file_cam_${i}').click()">📸 拍照</button>
+            <button type="button" class="photo-btn-up" onclick="document.getElementById('file_up_${i}').click()">📁 相簿</button>
+          </div>
+          <span class="photo-status" id="status_${i}">尚未完成</span>
         </div>`;
       grid.innerHTML += html;
     }
   }
 
-  function processImage(event, index) {
+  // 處理圖片 (依據是否使用相機決定要不要加浮水印)
+  function processImage(event, index, isCamera) {
     const file = event.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -381,9 +393,27 @@
         canvas.width = width;
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
+
+        // 如果是選擇「拍照」，則印上時間相機浮水印
+        if (isCamera) {
+          const now = new Date();
+          const timeStr = now.toLocaleString('zh-TW', { hour12: false });
+          
+          ctx.font = "bold 32px sans-serif";
+          ctx.fillStyle = "#FFD700";
+          ctx.strokeStyle = "black";
+          ctx.lineWidth = 4;
+          ctx.textAlign = "right";
+          ctx.textBaseline = "bottom";
+          const padding = 15;
+          
+          ctx.strokeText(timeStr, width - padding, height - padding);
+          ctx.fillText(timeStr, width - padding, height - padding);
+        }
+
         photosData[`photo_${index}`] = canvas.toDataURL('image/jpeg', 0.7);
         const statusSpan = document.getElementById(`status_${index}`);
-        statusSpan.innerText = "✅ 已上傳";
+        statusSpan.innerText = "✅ 已完成";
         statusSpan.style.color = "green";
       }
       img.src = e.target.result;
@@ -433,7 +463,7 @@
     const inspectionItems = {};
     for (let key of itemKeys) {
       const val = document.getElementById('check_' + key).value;
-      if (!val) { alert("請完成所有檢查項目的點選！"); return; }
+      if (!val) { alert("請完成所有油水檢查項目的點選！"); return; }
       inspectionItems[key] = val;
     }
 
@@ -462,7 +492,7 @@
     .then(res => res.json())
     .then(result => {
       if(result.status === 'success') {
-        showSuccessModal(`抽檢表上傳成功！\n單號：${result.recordId}`);
+        showSuccessModal(`抽檢表上傳成功！\n車號：${plateNumber}`);
       } else {
         alert('發生錯誤：' + result.message);
         submitBtn.innerText = '🚀 送出抽檢表';
