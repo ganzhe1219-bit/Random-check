@@ -185,14 +185,16 @@
     </div>
 
     <hr>
-    <h3>📝檢查項目</h3>
+    <h3>📝 檢查項目</h3>
+    <!-- 👇 新增這行警示語，設定為紅色置中、加粗 -->
+    <p style="text-align: center; color: #dc3545; font-weight: bold; font-size: 18px; margin-top: -10px; margin-bottom: 20px;">⚠️ 如發現異常請聯繫車管人員</p>
+    
     <div class="check-item"><label>引擎機油</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('engineOil', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('engineOil', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('engineOil', '不足', this)">不足</button></div><input type="hidden" id="check_engineOil" value=""></div>
     <div class="check-item"><label>方向機油</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('steeringOil', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('steeringOil', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('steeringOil', '不足', this)">不足</button></div><input type="hidden" id="check_steeringOil" value=""></div>
     <div class="check-item"><label>油量</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('fuel', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('fuel', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('fuel', '不足', this)">不足</button></div><input type="hidden" id="check_fuel" value=""></div>
     <div class="check-item"><label>煞車油</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('brakeOil', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('brakeOil', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('brakeOil', '不足', this)">不足</button></div><input type="hidden" id="check_brakeOil" value=""></div>
     <div class="check-item"><label>水箱水</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('coolant', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('coolant', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('coolant', '不足', this)">不足</button></div><input type="hidden" id="check_coolant" value=""></div>
     <div class="check-item"><label>電瓶水</label><div class="btn-group"><button type="button" class="status-btn" onclick="selectStatus('battery', '標準', this)">標準</button><button type="button" class="status-btn" onclick="selectStatus('battery', '過多', this)">過多</button><button type="button" class="status-btn" onclick="selectStatus('battery', '不足', this)">不足</button></div><input type="hidden" id="check_battery" value=""></div>
-
     <hr>
     <h3>📸 檢查過程拍照紀錄 (請上傳 8 張)</h3>
     <div class="photo-grid" id="photoGrid"></div>
