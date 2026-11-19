@@ -75,8 +75,8 @@
   <div id="home-section" class="section active">
     <h2>🚚 車輛抽檢系統</h2>
     <p style="text-align:center; font-size: 20px;">請選擇您的身分進入系統</p>
-    <button class="btn" onclick="showSection('driver-section')">我是駕駛 (填寫抽檢表)</button>
-    <button class="btn btn-secondary" onclick="showSection('login-section')">我是幹部 (調閱與簽章)</button>
+    <button class="btn" onclick="showSection('driver-section')">抽檢人員(班長) (填寫抽檢表)</button>
+    <button class="btn btn-secondary" onclick="showSection('login-section')">主管調閱與簽章</button>
   </div>
 
   <!-- 幹部登入區 -->
@@ -127,7 +127,7 @@
     <h3>✅ 幹部電子核章</h3>
     <p style="text-align:center; color:#555; font-size:16px;">點擊下方按鈕將自動產生【主管核章＋時間】電子印章</p>
     <br>
-    <button id="admin-submit-btn" class="btn" style="background-color: #28a745;" onclick="submitAdminSign()">✅ 一鍵核准 (自動蓋章)</button>
+    <button id="admin-submit-btn" class="btn" style="background-color: #28a745;" onclick="submitAdminSign()">✅ 核准 (電子核章)</button>
     <button class="btn btn-secondary" onclick="showSection('home-section')">登出返回</button>
   </div>
 
