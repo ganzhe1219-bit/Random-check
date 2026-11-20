@@ -77,7 +77,7 @@
     <h2>🚚 車輛抽檢系統</h2>
     <p style="text-align:center; font-size: 20px;">請選擇您的身分進入系統</p>
     <button class="btn" onclick="showSection('driver-section')">抽檢人員(班長) (填寫抽檢表)</button>
-    <button class="btn btn-secondary" onclick="showSection('login-section')">主管調閱與簽章</button>
+    <button class="btn btn-secondary" onclick="showSection('login-section')">調閱與簽章</button>
   </div>
 
   <!-- 幹部登入區 -->
@@ -126,7 +126,7 @@
     <button class="btn btn-secondary" onclick="loadPendingList()" style="padding:12px; margin-bottom: 25px;">🔄 重新整理清單</button>
     <hr>
     <h3>✅ 幹部電子核章</h3>
-    <p style="text-align:center; color:#555; font-size:16px;">點擊下方按鈕將自動產生【主管核章＋時間】電子印章</p>
+    <p style="text-align:center; color:#555; font-size:16px;">點擊下方按鈕將自動產生【車管核章＋時間】電子印章</p>
     <br>
     <button id="admin-submit-btn" class="btn" style="background-color: #28a745;" onclick="submitAdminSign()">✅ 核章 (電子簽章)</button>
     <button class="btn btn-secondary" onclick="showSection('home-section')">登出返回</button>
@@ -238,17 +238,61 @@
         <option value="KEU-6101">KEU-6101</option>
         <option value="KEV-8665">KEV-8665</option>
         <option value="KEX-0776">KEX-0776</option>
+        <option value="KEX-0776">KEX-0129</option>
       </select>
     </div>
     <div class="form-group">
-      <label>檢查人員姓名</label>
+      <label>車輛保管人員姓名</label>
       <select id="driverName">
         <option value="" disabled selected>請點擊選擇</option>
-        <option value="陳啓峯">陳啓峯</option>
-        <option value="林黃章">林黃章</option>
+        <option value="梁燈輝">梁燈輝</option>
+        <option value="陳顯鑫">陳顯鑫</option>
+        <option value="瞿旭廷">瞿旭廷</option>
         <option value="陳壬宥">陳壬宥</option>
+        <option value="洪清山">洪清山</option>
+        <option value="陳瀅伊">陳瀅伊</option>
+        <option value="陳郭榮">陳郭榮</option>
+        <option value="林柯俊杰">林柯俊杰</option>
+        <option value="王永昌">王永昌</option>
+        <option value="許鴻祥">許鴻祥</option>
+        <option value="周咪蝦">周咪蝦</option>
+        <option value="游宗翰">游宗翰</option>
+        <option value="陳俊賢">陳俊賢</option>
+        <option value="陳聯宗">陳聯宗</option>
+        <option value="陳美娟">陳美娟</option>
+        <option value="莊坤穎">莊坤穎</option>
+        <option value="李翰濬">李翰濬</option>
+        <option value="陳泓宇">陳泓宇</option>
+        <option value="楊馨蘋">楊馨蘋</option>
+        <option value="葉俊麟">葉俊麟</option>
         <option value="陳葉承">陳葉承</option>
-        <option value="陳偉修">陳偉修</option>
+        <option value="吳俊德">吳俊德</option>
+        <option value="詹沂彬">詹沂彬</option>
+        <option value="林宥丞">林宥丞</option>
+        <option value="陳柏蒼">陳柏蒼</option>
+        <option value="陳政瑋">陳政瑋</option>
+        <option value="曾勇儒">曾勇儒</option>
+        <option value="柯輝鴻">柯輝鴻</option>
+        <option value="歐良進">歐良進</option>
+        <option value="吳權達">吳權達</option>
+        <option value="林黃章">林黃章</option>
+        <option value="張永昌">張永昌</option>
+        <option value="梁宇閎">梁宇閎</option>
+        <option value="林俊呈">林俊呈</option>
+        <option value="陳建和">陳建和</option>
+        <option value="杜偉承">杜偉承</option>
+        <option value="李家銘">李家銘</option>
+        <option value="黃登富">黃登富</option>
+        <option value="黃信輝">黃信輝</option>
+        <option value="劉晃志">劉晃志</option>
+        <option value="吳欣穎">吳欣穎</option>
+        <option value="鄭光哲">鄭光哲</option>
+        <option value="黃昶森">黃昶森</option>
+        <option value="林宏旻">林宏旻</option>
+        <option value="邱志緯">邱志緯</option>
+        <option value="郭宏德">郭宏德</option>
+        <option value="張隆傑">張隆傑</option>
+        <option value="高銘鍵">高銘鍵</option>
       </select>
     </div>
 
@@ -268,7 +312,7 @@
     <div class="photo-grid" id="photoGrid"></div>
 
     <hr>
-    <h3>✍️ 駕駛確認簽名</h3>
+    <h3>✍️ 幹部抽查後確認簽名</h3>
     <canvas id="signature-pad"></canvas>
     <button type="button" class="btn btn-secondary" onclick="clearSignature()" style="padding: 12px; margin-top:10px;">清除重簽</button>
 
@@ -402,7 +446,7 @@
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = "bold 48px '微軟正黑體', sans-serif";
-    ctx.fillText("隊長 韓宗翰", stampCanvas.width / 2, 70);
+    ctx.fillText("車管 陳偉修", stampCanvas.width / 2, 70);
     ctx.font = "24px '微軟正黑體', sans-serif";
     const now = new Date();
     const timeStr = now.toLocaleString('zh-TW', { hour12: false });
@@ -422,7 +466,7 @@
     .then(res => res.json())
     .then(result => {
       if (result.status === 'success') {
-        showSuccessModal('主管電子核章已成功蓋上！');
+        showSuccessModal('車管電子核章已成功蓋上！');
       } else {
         alert('錯誤：' + result.message);
         btn.innerText = '✅ 一鍵核准 (自動蓋章)';
@@ -555,7 +599,7 @@
     const inspectionItems = {};
     for (let key of itemKeys) {
       const val = document.getElementById('check_' + key).value;
-      if (!val) { alert("請完成所有油水檢查項目的點選！"); return; }
+      if (!val) { alert("請完成所有檢查項目的點選！"); return; }
       inspectionItems[key] = val;
     }
 
