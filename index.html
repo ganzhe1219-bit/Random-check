@@ -323,6 +323,7 @@
   let currentArPendingData = [];
   let isDropdownLoaded = false;
   let loginTarget = 'inspection'; // 'inspection' 或 'ar'
+  let shouldReloadOnClose = true;
 
   function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
@@ -387,12 +388,16 @@
     });
   }
 
-  function showSuccessModal(message) {
+  function showSuccessModal(message, reloadAfterClose = true) {
+    shouldReloadOnClose = reloadAfterClose;
     document.getElementById('modalMessage').innerText = message;
     document.getElementById('successModal').style.display = 'flex';
   }
   function closeModalAndReload() {
-    window.location.reload();
+    document.getElementById('successModal').style.display = 'none';
+    if (shouldReloadOnClose) {
+      window.location.reload();
+    }
   }
 
   // ==================== 密碼鍵盤與登入驗證 ====================
@@ -521,12 +526,13 @@
     })
     .then(res => res.json())
     .then(result => {
+      btn.innerText = '✅ 核章 (電子簽章)';
+      btn.disabled = false;
       if (result.status === 'success') {
-        showSuccessModal('車管電子核章已成功蓋上！');
+        loadPendingList(); // 自動重新整理清單，移除已核章項目
+        showSuccessModal('車管電子核章已成功蓋上！\n可繼續選擇下一筆審核。', false);
       } else {
         alert('錯誤：' + result.message);
-        btn.innerText = '✅ 核章 (電子簽章)';
-        btn.disabled = false;
       }
     })
     .catch(e => {
@@ -739,7 +745,7 @@
     .then(res => res.json())
     .then(result => {
       if(result.status === 'success') {
-        showSuccessModal(`抽檢表上傳成功！\n車號：${plateNumber}`);
+        showSuccessModal(`抽檢表上傳成功！\n車號：${plateNumber}`, true);
       } else {
         alert('發生錯誤：' + result.message);
         submitBtn.innerText = '🚀 送出抽檢表';
@@ -967,7 +973,7 @@
     .then(result => {
       if (result.status === 'success') {
         localStorage.removeItem(AR_STORAGE_KEY);
-        showSuccessModal(`AR消炭紀錄上傳成功！\n車號：${plateNumber}\n總耗時：${payload.duration}`);
+        showSuccessModal(`AR消炭紀錄上傳成功！\n車號：${plateNumber}\n總耗時：${payload.duration}`, true);
       } else {
         alert('發生錯誤：' + result.message);
         btn.innerText = '🚀 送出消炭紀錄';
@@ -1043,12 +1049,13 @@
     })
     .then(res => res.json())
     .then(result => {
+      btn.innerText = '✅ 核章 (電子簽章)';
+      btn.disabled = false;
       if (result.status === 'success') {
-        showSuccessModal('班長電子核章已成功蓋上！');
+        loadArPendingList(); // 自動重新整理清單，移除已核章項目
+        showSuccessModal('班長電子核章已成功蓋上！\n可繼續選擇下一筆核章。', false);
       } else {
         alert('錯誤：' + result.message);
-        btn.innerText = '✅ 核章 (電子簽章)';
-        btn.disabled = false;
       }
     })
     .catch(e => {
