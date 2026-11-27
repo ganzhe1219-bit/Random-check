@@ -74,7 +74,7 @@
     /* AR計時器專屬樣式 */
     .timer-card { background: #fff8f0; border: 2px solid #f39c12; border-radius: 10px; padding: 20px; text-align: center; margin: 20px 0; }
     .timer-display { font-size: 42px; font-weight: bold; color: #d35400; font-family: monospace; letter-spacing: 2px; margin: 10px 0; }
-    .timer-sub { font-size: 16px; color: #666; }
+    .timer-sub { font-size: 16px; color: #666; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -262,7 +262,7 @@
       <button type="button" class="btn btn-secondary" onclick="clearArSignature()" style="padding: 12px; margin-top:10px;">清除重簽</button>
 
       <br><br>
-      <button id="ar-submit-btn" class="btn" onclick="submitArForm()">🚀 送出消炭紀錄</button>
+      <button id="ar-submit-btn" class="btn" onclick="submitArForm()">🚀 送出消碳紀錄</button>
       <button type="button" class="btn btn-secondary" onclick="cancelArTimer()" style="padding:12px; font-size:16px;">取消並重新計時</button>
     </div>
 
@@ -686,18 +686,19 @@
   let arStartTimeMs = null;
   let arEndTimeMs = null;
 
-  function formatTimeHMS(dateObj) {
-    const h = ("0" + dateObj.getHours()).slice(-2);
-    const m = ("0" + dateObj.getMinutes()).slice(-2);
-    const s = ("0" + dateObj.getSeconds()).slice(-2);
-    return `${h}:${m}:${s}`;
-  }
-
   function formatDateYMD(dateObj) {
     const y = dateObj.getFullYear();
     const m = ("0" + (dateObj.getMonth() + 1)).slice(-2);
     const d = ("0" + dateObj.getDate()).slice(-2);
     return `${y}/${m}/${d}`;
+  }
+
+  function formatDateTimeYMDHMS(dateObj) {
+    const ymd = formatDateYMD(dateObj);
+    const h = ("0" + dateObj.getHours()).slice(-2);
+    const m = ("0" + dateObj.getMinutes()).slice(-2);
+    const s = ("0" + dateObj.getSeconds()).slice(-2);
+    return `${ymd} ${h}:${m}:${s}`;
   }
 
   function formatDurationClock(ms) {
@@ -751,7 +752,7 @@
     document.getElementById('ar-timer-card').style.display = 'block';
 
     const startDate = new Date(arStartTimeMs);
-    document.getElementById('ar-start-label').innerText = `開始時間：${formatTimeHMS(startDate)}`;
+    document.getElementById('ar-start-label').innerText = `開始時間：${formatDateTimeYMDHMS(startDate)}`;
     document.getElementById('ar-status-hint').innerText = '⏱️ 消碳再生執行中（關閉畫面仍會繼續計時）';
     document.getElementById('ar-status-hint').style.color = '#28a745';
 
@@ -772,7 +773,7 @@
     const diffMs = arEndTimeMs - arStartTimeMs;
 
     document.getElementById('ar-timer-display').innerText = formatDurationClock(diffMs);
-    document.getElementById('ar-start-label').innerText = `開始：${formatTimeHMS(startDate)} ｜ 結束：${formatTimeHMS(endDate)}`;
+    document.getElementById('ar-start-label').innerHTML = `開始：${formatDateTimeYMDHMS(startDate)}<br>結束：${formatDateTimeYMDHMS(endDate)}`;
     document.getElementById('ar-status-hint').innerText = `✅ 已完成計時（總耗時：${formatDurationText(diffMs)}）`;
     document.getElementById('ar-status-hint').style.color = '#d35400';
 
@@ -875,8 +876,8 @@
       shift: shift,
       plateNumber: plateNumber,
       driverName: driverName,
-      startTime: formatTimeHMS(startDate),
-      endTime: formatTimeHMS(endDate),
+      startTime: formatDateTimeYMDHMS(startDate),
+      endTime: formatDateTimeYMDHMS(endDate),
       duration: formatDurationText(diffMs),
       signature: arCanvas.toDataURL('image/png')
     };
@@ -893,10 +894,10 @@
     .then(result => {
       if (result.status === 'success') {
         localStorage.removeItem(AR_STORAGE_KEY);
-        showSuccessModal(`AR消炭紀錄上傳成功！\n車號：${plateNumber}\n總耗時：${payload.duration}`);
+        showSuccessModal(`AR消碳紀錄上傳成功！\n車號：${plateNumber}\n總耗時：${payload.duration}`);
       } else {
         alert('發生錯誤：' + result.message);
-        btn.innerText = '🚀 送出消炭紀錄';
+        btn.innerText = '🚀 送出消碳紀錄';
         btn.disabled = false;
       }
     })
