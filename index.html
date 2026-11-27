@@ -45,14 +45,16 @@
     .status-btn.active-red { background: #dc3545; color: white; border-color: #dc3545; }
     .status-btn.active-gray { background: #6c757d; color: white; border-color: #6c757d; }
 
+    /* 安卓相容性優化：改用原生 label 連動隱藏的 1px 檔案輸入框 */
     .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-    .photo-item { border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px; background: #fafafa; }
-    .photo-item label { font-size: 18px; }
-    .photo-item input { display: none; } 
+    .photo-item { border: 2px dashed #ccc; padding: 15px; text-align: center; border-radius: 8px; background: #fafafa; position: relative; }
+    .photo-title { font-weight: bold; font-size: 18px; color: #444; margin-bottom: 8px; }
+    .photo-item input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; } 
     .photo-actions { display: flex; gap: 8px; margin-top: 10px; }
-    .photo-btn-cam { background: #28a745; color: white; padding: 10px 5px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight:bold; flex: 1; }
-    .photo-btn-up { background: #17a2b8; color: white; padding: 10px 5px; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight:bold; flex: 1; }
-    .photo-status { display: block; margin-top: 8px; font-size: 14px; color: red; font-weight:bold; }
+    .photo-btn-cam, .photo-btn-up { color: white; padding: 12px 5px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; flex: 1; margin-bottom: 0; display: flex; align-items: center; justify-content: center; user-select: none; touch-action: manipulation; }
+    .photo-btn-cam { background: #28a745; }
+    .photo-btn-up { background: #17a2b8; }
+    .photo-status { display: block; margin-top: 8px; font-size: 14px; color: red; font-weight: bold; }
 
     canvas { border: 2px solid #ccc; width: 100%; height: 250px; background: #fff; cursor: crosshair; touch-action: none; border-radius: 8px; }
 
@@ -353,7 +355,7 @@
         });
 
         isDropdownLoaded = true;
-        restoreArSession(); // 名單載入後若有進行中的 AR 計時自動還原選項
+        restoreArSession();
       } else {
         plateSelects.forEach(sel => sel.innerHTML = '<option value="">讀取失敗，請重新整理</option>');
         driverSelects.forEach(sel => sel.innerHTML = '<option value="">讀取失敗，請重新整理</option>');
@@ -527,18 +529,19 @@
 
   const photosData = {}; 
 
+  // 安卓相容性優化：使用原生 <label for="..."> 觸發選單，避免被 WebView 阻擋
   function generatePhotoGrid() {
     const grid = document.getElementById('photoGrid');
     if (grid.innerHTML !== "") return; 
     for (let i = 1; i <= 6; i++) {
       const html = `
         <div class="photo-item">
-          <label>照片 ${i}</label>
-          <input type="file" id="file_cam_${i}" accept="image/*" capture="environment" onchange="processImage(event, ${i}, true)">
+          <div class="photo-title">照片 ${i}</div>
+          <input type="file" id="file_cam_${i}" accept="image/*" onchange="processImage(event, ${i}, true)">
           <input type="file" id="file_up_${i}" accept="image/*" onchange="processImage(event, ${i}, false)">
           <div class="photo-actions">
-            <button type="button" class="photo-btn-cam" onclick="document.getElementById('file_cam_${i}').click()">📸 拍照</button>
-            <button type="button" class="photo-btn-up" onclick="document.getElementById('file_up_${i}').click()">📁 相簿</button>
+            <label for="file_cam_${i}" class="photo-btn-cam">📸 拍照</label>
+            <label for="file_up_${i}" class="photo-btn-up">📁 相簿</label>
           </div>
           <span class="photo-status" id="status_${i}">尚未完成</span>
         </div>`;
@@ -547,7 +550,8 @@
   }
 
   function processImage(event, index, isCamera) {
-    const file = event.target.files[0];
+    const inputEl = event.target;
+    const file = inputEl.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -581,6 +585,7 @@
         const statusSpan = document.getElementById(`status_${index}`);
         statusSpan.innerText = "✅ 已完成";
         statusSpan.style.color = "green";
+        inputEl.value = ""; // 清空值以允許重拍同一格
       }
       img.src = e.target.result;
     }
@@ -725,7 +730,6 @@
     arStartTimeMs = Date.now();
     arEndTimeMs = null;
 
-    // 存入瀏覽器記憶，防止螢幕休眠或誤關網頁遺失
     localStorage.setItem(AR_STORAGE_KEY, JSON.stringify({
       startTimeMs: arStartTimeMs,
       shift: shift,
