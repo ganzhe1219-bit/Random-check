@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>車輛管理與抽檢系統</title>
+  <!-- 自動將安卓/iPhone 相簿中的 HEIC 高效率照片轉為瀏覽器可讀取的 JPG -->
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
   <script>
     // 自動偵測 LINE 內建瀏覽器並強制跳轉至外部預設瀏覽器 (Chrome / Safari)
     (function() {
@@ -547,7 +549,6 @@
 
   const photosData = {}; 
 
-  // 安卓相容性優化：拍照鈕保留 capture="environment" 喚醒相機，相簿鈕開啟相簿
   function generatePhotoGrid() {
     const grid = document.getElementById('photoGrid');
     if (grid.innerHTML !== "") return; 
@@ -567,8 +568,14 @@
     }
   }
 
-  // 使用 createObjectURL 避免高畫素照片在安卓手機上因 Base64 記憶體溢出而無聲失敗
-  function processImage(event, index, isCamera) {
+  function isHeicFile(file) {
+    const type = (file.type || '').toLowerCase();
+    const name = (file.name || '').toLowerCase();
+    return type === 'image/heic' || type === 'image/heif' || name.endsWith('.heic') || name.endsWith('.heif');
+  }
+
+  // 支援一般 JPG/PNG 與三星/蘋果 HEIC 高效率圖片自動轉檔
+  async function processImage(event, index, isCamera) {
     const inputEl = event.target;
     const file = inputEl.files && inputEl.files[0];
     if (!file) return;
@@ -577,60 +584,85 @@
     statusSpan.innerText = "⏳ 處理中...";
     statusSpan.style.color = "#e67e22";
 
-    const objectUrl = URL.createObjectURL(file);
-    const img = new Image();
+    const drawToCanvas = (blobToRead) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onload = function() {
+            try {
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
+              const MAX_WIDTH = 800;
+              let width = img.width;
+              let height = img.height;
+              if (width > MAX_WIDTH) {
+                height = Math.round((height * MAX_WIDTH) / width);
+                width = MAX_WIDTH;
+              }
+              canvas.width = width;
+              canvas.height = height;
+              ctx.drawImage(img, 0, 0, width, height);
 
-    img.onload = function() {
-      try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const MAX_WIDTH = 800; 
-        let width = img.width;
-        let height = img.height;
-        if (width > MAX_WIDTH) {
-          height = Math.round((height * MAX_WIDTH) / width);
-          width = MAX_WIDTH;
-        }
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
+              if (isCamera) {
+                const now = new Date();
+                const timeStr = now.toLocaleString('zh-TW', { hour12: false });
+                ctx.font = "bold 32px sans-serif";
+                ctx.fillStyle = "#FFD700";
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 4;
+                ctx.textAlign = "right";
+                ctx.textBaseline = "bottom";
+                const padding = 15;
+                ctx.strokeText(timeStr, width - padding, height - padding);
+                ctx.fillText(timeStr, width - padding, height - padding);
+              }
 
-        if (isCamera) {
-          const now = new Date();
-          const timeStr = now.toLocaleString('zh-TW', { hour12: false });
-          ctx.font = "bold 32px sans-serif";
-          ctx.fillStyle = "#FFD700";
-          ctx.strokeStyle = "black";
-          ctx.lineWidth = 4;
-          ctx.textAlign = "right";
-          ctx.textBaseline = "bottom";
-          const padding = 15;
-          ctx.strokeText(timeStr, width - padding, height - padding);
-          ctx.fillText(timeStr, width - padding, height - padding);
-        }
-
-        photosData[`photo_${index}`] = canvas.toDataURL('image/jpeg', 0.7);
-        statusSpan.innerText = "✅ 已完成";
-        statusSpan.style.color = "green";
-      } catch (err) {
-        statusSpan.innerText = "❌ 處理失敗";
-        statusSpan.style.color = "red";
-        alert("照片處理失敗：" + err.message);
-      } finally {
-        URL.revokeObjectURL(objectUrl);
-        inputEl.value = "";
-      }
+              photosData[`photo_${index}`] = canvas.toDataURL('image/jpeg', 0.7);
+              resolve();
+            } catch (err) {
+              reject(err);
+            }
+          };
+          img.onerror = () => reject(new Error('IMG_DECODE_FAILED'));
+          img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('FILE_READ_FAILED'));
+        reader.readAsDataURL(blobToRead);
+      });
     };
 
-    img.onerror = function() {
-      URL.revokeObjectURL(objectUrl);
-      inputEl.value = "";
+    try {
+      if (isHeicFile(file) && typeof heic2any !== 'undefined') {
+        statusSpan.innerText = "⏳ 格式轉換中...";
+        const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.7 });
+        const jpegBlob = Array.isArray(converted) ? converted[0] : converted;
+        await drawToCanvas(jpegBlob);
+      } else {
+        try {
+          await drawToCanvas(file);
+        } catch (firstErr) {
+          // 部分三星機型會將 HEIC 存成無副檔名或 .jpg，解碼失敗時自動嘗試 HEIC 轉檔
+          if (typeof heic2any !== 'undefined') {
+            statusSpan.innerText = "⏳ 格式轉換中...";
+            const converted = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.7 });
+            const jpegBlob = Array.isArray(converted) ? converted[0] : converted;
+            await drawToCanvas(jpegBlob);
+          } else {
+            throw firstErr;
+          }
+        }
+      }
+
+      statusSpan.innerText = "✅ 已完成";
+      statusSpan.style.color = "green";
+    } catch (err) {
       statusSpan.innerText = "❌ 讀取失敗";
       statusSpan.style.color = "red";
-      alert("無法讀取此照片格式，請重新拍攝或改選其他照片。");
-    };
-
-    img.src = objectUrl;
+      alert("無法讀取此照片（格式：" + (file.type || file.name || "未知") + "），請改用「📸 拍照」或開啟手機相機設定關閉「高效率圖片」。");
+    } finally {
+      inputEl.value = "";
+    }
   }
 
   let canvas, ctx, drawing = false, hasSigned = false;
